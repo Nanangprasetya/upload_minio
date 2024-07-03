@@ -1,18 +1,23 @@
 import * as Minio from "minio";
 import * as dotenv from "dotenv";
-import path from 'path';
+import path from "path";
 
 dotenv.config();
 
-//! format promp `node {SCRIPT} {PREFIX} {FILE_DIRECTORY}`
+//! format promp `node {SCRIPT} {PREFIX} {FILE_DIRECTORY} {DAY_OF_DELETE}`
 //! E.g
-//! node runner.mjs database db_backup/db_prod_1202204.zip
+//! node runner.mjs database db_backup/db_prod_1202204.zip 7
 
-const lastDay = 7;
 const prefix = process.argv[2];
 const sourceFile = process.argv[3];
+const lastDay = process.argv[4] ?? 7;
 const bucket = process.env.BUCKET;
 const destinationObject = prefix + "/" + path.basename(sourceFile);
+
+if (!prefix || !sourceFile) {
+	console.error("Usage: node runner.mjs <prefix> <sourceFile> <day_of_delete>");
+	process.exit(1);
+}
 
 const minioClient = new Minio.Client({
 	endPoint: process.env.SERVER_ENDPOINT,
@@ -36,10 +41,10 @@ if (exists) {
 			metaData
 		);
 		console.log(
-			`⬆️ File ${destinationObject} uploaded as object ${destinationObject} in bucket  ${bucket}`
+			`⬆️ File ${destinationObject} uploaded as object ${destinationObject} in bucket ${bucket}`
 		);
 	} catch (error) {
-		console.log(
+		console.error(
 			`❌ Error when upload object in basket ${bucket}. \n ERROR: ${error}`
 		);
 	}
@@ -60,7 +65,7 @@ if (exists) {
 					`⬇️ File ${obj.name} create date at ${obj.lastModified} has been deleted from bucket ${bucket}`
 				);
 			} catch (error) {
-				console.log(
+				console.error(
 					`❌ Error uploading object in basket ${bucket}. \n ERROR: ${error}`
 				);
 			}
@@ -68,8 +73,9 @@ if (exists) {
 	});
 
 	objectsStream.on("error", function (error) {
-		console.log("Error listing objects:", error);
+		console.error("❌ Error listing objects:", error);
 	});
 } else {
-	console.log(`🛑 Bucket ${bucket} not found`);
+	console.error(`🛑 Bucket ${bucket} not found`);
+	process.exit(1);
 }
