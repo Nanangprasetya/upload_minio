@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Script to backup file to min.io...",
-  "author": "",
+  "author": "@biscuit",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^16.4.5",

@@ -1,6 +1,7 @@
 import * as Minio from "minio";
 import * as dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 
 dotenv.config();
 
@@ -32,8 +33,18 @@ var metaData = {
 
 const exists = await minioClient.bucketExists(bucket);
 if (exists) {
-	//! UPLOAD OBJECT
+	// Interval Time to Upload
+	let startTime = Date.now();
+	let intervalId = setInterval(() => {
+		let elapsedTime = (Date.now() - startTime) / 1000;
+		let minutes = Math.floor(elapsedTime / 60);
+        let seconds = Math.floor(elapsedTime % 60);
+        console.log(`⏰ Time to Upload: ${minutes} menit ${seconds} detik`);
+	}, 60000);
+	
 	try {
+		console.log(`🔁 Proccessing upload...`);
+		//! UPLOAD OBJECT
 		await minioClient.fPutObject(
 			bucket,
 			destinationObject,
@@ -47,6 +58,8 @@ if (exists) {
 		console.error(
 			`❌ Error when upload object in basket ${bucket}. \n ERROR: ${error}`
 		);
+	} finally {
+		clearInterval(intervalId);
 	}
 
 	//! CHECK OBJECTS FROM BUCKET (PRIPARATION TO CHECK LAST DATE OF OBJECT)
