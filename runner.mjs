@@ -1,7 +1,6 @@
 import * as Minio from "minio";
 import * as dotenv from "dotenv";
 import path from "path";
-import fs from "fs";
 
 dotenv.config();
 
