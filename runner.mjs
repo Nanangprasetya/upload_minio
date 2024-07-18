@@ -78,7 +78,7 @@ if (exists) {
 				);
 			} catch (error) {
 				console.error(
-					`❌ Error uploading object in basket ${bucket}. \n ERROR: ${error}`
+					`❌ Error when deleted object in basket ${bucket}. \n ERROR: ${error}`
 				);
 			}
 		}
